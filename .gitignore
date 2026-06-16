@@ -1,0 +1,15 @@
+target/
+
+# Local editor and IDE metadata
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS and local runtime noise
+.DS_Store
+*.log
+*.pid
+*.tmp

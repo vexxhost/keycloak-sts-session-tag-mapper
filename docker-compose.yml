@@ -1,0 +1,12 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5-0
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./target/sts-session-tag-mapper-0.1.0-SNAPSHOT.jar:/opt/keycloak/providers/sts-session-tag-mapper.jar:ro
+      - ./hack/keycloak-init.sh:/opt/keycloak/keycloak-init.sh:ro
+    entrypoint: ["/bin/bash", "/opt/keycloak/keycloak-init.sh"]
