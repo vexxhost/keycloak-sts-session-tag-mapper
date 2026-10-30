@@ -1,7 +1,7 @@
 // Copyright (c) 2026 VEXXHOST, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-package com.vexxhost.keycloak.mapper;
+package com.vexxhost.keycloak.sts.sessiontag;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
