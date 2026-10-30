@@ -196,12 +196,21 @@ class StsSessionTagMapperIT {
         assertEquals(Set.of("aaa:readwrite"), values(after, "project-access"));
     }
 
-    private static void createClient(String clientId, Map<String, String> mapperConfig) {
+    /**
+     * Creates a client with the mapper configured the way the admin console does it: every
+     * option starts at the mapper's declared default, then the given overrides apply.
+     */
+    private static void createClient(String clientId, Map<String, String> overrides) {
+        Map<String, String> config = new HashMap<>();
+        new StsSessionTagMapper().getConfigProperties()
+                .forEach(property -> config.put(property.getName(), String.valueOf(property.getDefaultValue())));
+        config.putAll(overrides);
+
         ProtocolMapperRepresentation mapper = new ProtocolMapperRepresentation();
         mapper.setName("STS Session Tags");
         mapper.setProtocol("openid-connect");
         mapper.setProtocolMapper(StsSessionTagMapper.PROVIDER_ID);
-        mapper.setConfig(new HashMap<>(mapperConfig));
+        mapper.setConfig(config);
 
         ClientRepresentation client = new ClientRepresentation();
         client.setClientId(clientId);

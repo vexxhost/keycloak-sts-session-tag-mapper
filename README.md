@@ -126,6 +126,11 @@ Clients -> <client> -> Client scopes -> <client>-dedicated -> Add mapper -> By c
 Attach it only where STS needs it. Every tag value adds to the token size,
 and some services cap request header size (for example, at 16 KB).
 
+The defaults below are what the admin console fills in. When you create the
+mapper through the admin REST API, `kcadm.sh` or automation, set
+`access.token.claim` (and `id.token.claim` if needed) to `"true"` explicitly:
+Keycloak treats a missing token option as `false`.
+
 | Option | Config key | Default | Description |
 | --- | --- | --- | --- |
 | Enable principal_tags | `principal.tags.enabled` | `true` | Emit `principal_tags`. |
