@@ -1,3 +1,6 @@
+// Copyright (c) 2026 VEXXHOST, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package com.vexxhost.keycloak.mapper;
 
 import java.util.ArrayList;

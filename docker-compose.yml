@@ -1,12 +1,29 @@
+# Copyright (c) 2026 VEXXHOST, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Local test harness. The mapper image is built from this checkout and copies
+# the provider jar into a shared volume before Keycloak starts, the same way an
+# init container does in Kubernetes.
 services:
+  mapper:
+    build: .
+    volumes:
+      - providers:/providers
+
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.5-0
+    image: quay.io/keycloak/keycloak:26.8.1
+    depends_on:
+      mapper:
+        condition: service_completed_successfully
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
     ports:
       - "8080:8080"
     volumes:
-      - ./target/sts-session-tag-mapper-0.1.0-SNAPSHOT.jar:/opt/keycloak/providers/sts-session-tag-mapper.jar:ro
+      - providers:/opt/keycloak/providers:ro
       - ./hack/keycloak-init.sh:/opt/keycloak/keycloak-init.sh:ro
     entrypoint: ["/bin/bash", "/opt/keycloak/keycloak-init.sh"]
+
+volumes:
+  providers: {}

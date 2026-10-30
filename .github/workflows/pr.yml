@@ -1,0 +1,30 @@
+name: pr
+
+on:
+  pull_request:
+    types:
+      - edited
+      - opened
+      - reopened
+      - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  # release-please builds the changelog and picks the next version from
+  # squash-merged pull request titles, so they must be conventional commits.
+  conventional-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43 # v2.22.3
+        with:
+          egress-policy: audit
+
+      - uses: ytanikin/pr-conventional-commits@639145d78959c53c43112365837e3abd21ed67c1 # 1.5.2
+        with:
+          task_types: '["build", "chore", "ci", "docs", "feat", "fix", "perf", "refactor", "revert", "style", "test"]'
+          add_label: "false"

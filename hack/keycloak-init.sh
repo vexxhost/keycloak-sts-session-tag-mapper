@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (c) 2026 VEXXHOST, Inc.
+# SPDX-License-Identifier: Apache-2.0
+
 set -euo pipefail
 
 KCADM="/opt/keycloak/bin/kcadm.sh"
@@ -15,8 +18,8 @@ echo "Waiting for Keycloak to start..."
 until "$KCADM" config credentials \
   --server "$SERVER_URL" \
   --realm master \
-  --user "${KEYCLOAK_ADMIN}" \
-  --password "${KEYCLOAK_ADMIN_PASSWORD}" >/dev/null 2>&1; do
+  --user "${KC_BOOTSTRAP_ADMIN_USERNAME}" \
+  --password "${KC_BOOTSTRAP_ADMIN_PASSWORD}" >/dev/null 2>&1; do
   sleep 2
 done
 
@@ -59,7 +62,7 @@ if ! "$KCADM" get "clients/${CLIENT_UUID}/protocol-mappers/models" -r "$REALM" \
     "principal.tag.attribute.prefix": "sts-session-tags.",
     "transitive.tag.keys.enabled": "true",
     "transitive.tag.keys.attribute": "sts-session-transitive-tag-keys",
-    "claim.format": "radosgw-array",
+    "claim.format": "aws-nested",
     "include.parent.groups": "true",
     "include.user.attributes": "false"
   }

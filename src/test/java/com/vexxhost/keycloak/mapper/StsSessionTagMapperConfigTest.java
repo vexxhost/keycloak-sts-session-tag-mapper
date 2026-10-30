@@ -1,3 +1,6 @@
+// Copyright (c) 2026 VEXXHOST, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 package com.vexxhost.keycloak.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,9 +23,9 @@ class StsSessionTagMapperConfigTest {
         assertEquals("STS Session Tags", mapper.getDisplayType());
         assertEquals(Boolean.TRUE,
                 config.get(OIDCAttributeMapperHelper.INCLUDE_IN_ACCESS_TOKEN).getDefaultValue());
-        assertEquals(Boolean.TRUE,
+        assertEquals(Boolean.FALSE,
                 config.get(OIDCAttributeMapperHelper.INCLUDE_IN_ID_TOKEN).getDefaultValue());
-        assertEquals("radosgw-array", config.get("claim.format").getDefaultValue());
+        assertEquals("aws-nested", config.get("claim.format").getDefaultValue());
         assertEquals(Boolean.FALSE, config.get("transitive.tag.keys.enabled").getDefaultValue());
     }
 }

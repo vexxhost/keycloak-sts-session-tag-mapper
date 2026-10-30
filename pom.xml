@@ -1,18 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2026 VEXXHOST, Inc.
+  SPDX-License-Identifier: Apache-2.0
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.vexxhost.keycloak</groupId>
-  <artifactId>sts-session-tag-mapper</artifactId>
+  <artifactId>keycloak-sts-session-tag-mapper</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
+  <name>Keycloak STS Session Tag Mapper</name>
+  <description>Keycloak OIDC protocol mapper that emits AWS STS and Ceph RADOS Gateway session tags from Keycloak group attributes.</description>
+  <url>https://github.com/vexxhost/keycloak-sts-session-tag-mapper</url>
+
+  <organization>
+    <name>VEXXHOST, Inc.</name>
+    <url>https://vexxhost.com</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>https://github.com/vexxhost/keycloak-sts-session-tag-mapper</url>
+    <connection>scm:git:https://github.com/vexxhost/keycloak-sts-session-tag-mapper.git</connection>
+    <developerConnection>scm:git:git@github.com:vexxhost/keycloak-sts-session-tag-mapper.git</developerConnection>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/vexxhost/keycloak-sts-session-tag-mapper/issues</url>
+  </issueManagement>
+
   <properties>
     <java.version>17</java.version>
-    <keycloak.version>24.0.5</keycloak.version>
-    <junit.version>5.10.2</junit.version>
+    <!-- Keep in step with the Keycloak version Atmosphere deploys; the integration tests run against this image tag. -->
+    <keycloak.version>26.8.1</keycloak.version>
+    <junit.version>6.1.3</junit.version>
+    <testcontainers-keycloak.version>4.4.0</testcontainers-keycloak.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>${java.version}</maven.compiler.release>
   </properties>
@@ -37,19 +71,57 @@
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.dasniko</groupId>
+      <artifactId>testcontainers-keycloak</artifactId>
+      <version>${testcontainers-keycloak.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${project.basedir}</directory>
+        <targetPath>META-INF</targetPath>
+        <includes>
+          <include>LICENSE</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>3.16.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.5</version>
+        <version>3.6.1</version>
+      </plugin>
+      <plugin>
+        <!-- Integration tests (*IT.java) load the packaged jar into a real Keycloak container. -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.6.1</version>
+        <configuration>
+          <systemPropertyVariables>
+            <keycloak.version>${keycloak.version}</keycloak.version>
+            <mapper.jar>${project.build.directory}/${project.build.finalName}.jar</mapper.jar>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
