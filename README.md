@@ -21,12 +21,14 @@ can produce the same claim, but it needs a separate mapper for every tag key.
 Given these group attributes:
 
 ```text
-Group "tenant-a"                      sts-session-tags.department     = eng
-  Subgroup "tenant-a/project-aaa"     sts-session-tags.project-access = aaa:readwrite
-Group "project-bbb"                   sts-session-tags.project-access = bbb:readonly
+Group "tenant-a"
+  sts-session-tags.department = eng
+  Subgroup "tenant-a/projects"
+    sts-session-tags.project-access = aaa:readwrite
+    sts-session-tags.project-access = bbb:readonly
 ```
 
-a member of `tenant-a/project-aaa` and `project-bbb` gets:
+a member of `tenant-a/projects` gets this RGW-compatible claim:
 
 ```json
 "https://aws.amazon.com/tags": {
@@ -37,11 +39,31 @@ a member of `tenant-a/project-aaa` and `project-bbb` gets:
 }
 ```
 
-The mapper reads the attributes of every group the user belongs to and,
-unless disabled, of their parent groups. Values for the same key are merged and
-de-duplicated. The order of values follows Keycloak's group iteration and
-should not be relied on. Changes to group membership or attributes apply to the
-next token Keycloak issues.
+A Keycloak group or user attribute can have several values under the same
+`sts-session-tags.<key>` name, as shown by the two `project-access` values
+above. User attributes are included only when that option is enabled. The
+mapper also reads the attributes of every group the user belongs to and, unless
+disabled, of their parent groups. Values for the same key are
+merged and de-duplicated. The order of values follows Keycloak's group
+iteration and should not be relied on. Changes to group membership or
+attributes apply to the next token Keycloak issues.
+
+**RGW supports multi-valued session tags, but AWS STS does not.** The
+[AWS documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html)
+says, "You must pass a single value for each session tag." The
+[RGW documentation](https://docs.ceph.com/en/latest/radosgw/session-tags/)
+says, "Session Tags can be multi-valued." For AWS, each tag key must therefore
+have exactly one value after the mapper combines all matching user, group and
+parent-group attributes. For example, this is valid for both AWS and RGW:
+
+```json
+"https://aws.amazon.com/tags": {
+  "principal_tags": {
+    "department": ["eng"],
+    "project-access": ["aaa:readwrite"]
+  }
+}
+```
 
 Tags describe what Keycloak says about the user. Keycloak does not sync them
 with other systems such as OpenStack Keystone role assignments. Whoever can edit
@@ -145,11 +167,12 @@ Keycloak treats a missing token option as `false`.
 
 ### Claim formats
 
-`aws-nested` emits the object documented by AWS, shown above. RGW accepts it
-as well.
+The claim format controls the outer JSON structure, independently of whether a
+tag has one or several values. `aws-nested` emits the object documented by AWS,
+as shown in the examples above. RGW accepts this format as well.
 
-`radosgw-array` wraps the same object in a one-element array, which is the
-form shown in the
+`radosgw-array` wraps the same object in a one-element array, which is the form
+shown in the
 [RGW Keycloak guide](https://docs.ceph.com/en/latest/radosgw/keycloak/#adding-tags-to-a-user-in-keycloak):
 
 ```json
@@ -159,6 +182,10 @@ form shown in the
   }
 }]
 ```
+
+The `radosgw-array` wrapper and this multi-valued example are for RGW. For AWS
+STS, use `aws-nested`, and every array inside `principal_tags` must contain
+exactly one value.
 
 ### Transitive tags
 

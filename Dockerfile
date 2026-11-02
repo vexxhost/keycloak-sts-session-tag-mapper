@@ -21,4 +21,6 @@ COPY --from=build /dist/keycloak-sts-session-tag-mapper.jar /
 FROM busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
 COPY LICENSE /licenses/LICENSE
 COPY --from=build /dist/keycloak-sts-session-tag-mapper.jar /opt/keycloak/providers/keycloak-sts-session-tag-mapper.jar
+RUN mkdir /providers && chown 65534:65534 /providers
+USER 65534:65534
 CMD ["cp", "-v", "/opt/keycloak/providers/keycloak-sts-session-tag-mapper.jar", "/providers/"]
