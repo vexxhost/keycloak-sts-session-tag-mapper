@@ -5,7 +5,7 @@
 # that copies the jar into Keycloak's providers directory, or with
 # `COPY --from=` when building a custom Keycloak image.
 
-FROM --platform=$BUILDPLATFORM maven:3.9.16-eclipse-temurin-21@sha256:99e61abcff91a9b1333463bd8451fb18495d6eba9250ac66a338b518f8278320 AS build
+FROM --platform=$BUILDPLATFORM maven:3.10.0-eclipse-temurin-21@sha256:9673eef9ed503146591667ffb92eaaa22f1b8899ed60d9df0df4da3f3a1214a6 AS build
 WORKDIR /src
 COPY pom.xml LICENSE ./
 COPY src ./src
