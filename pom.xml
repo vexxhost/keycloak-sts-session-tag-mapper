@@ -44,7 +44,7 @@
   <properties>
     <java.version>17</java.version>
     <!-- Keep in step with the Keycloak version Atmosphere deploys; the integration tests run against this image tag. -->
-    <keycloak.version>26.8.1</keycloak.version>
+    <keycloak.version>26.8.2</keycloak.version>
     <junit.version>6.1.3</junit.version>
     <testcontainers-keycloak.version>4.4.0</testcontainers-keycloak.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
