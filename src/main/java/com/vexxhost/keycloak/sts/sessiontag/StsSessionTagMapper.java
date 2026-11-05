@@ -1,4 +1,7 @@
-package com.vexxhost.keycloak.mapper;
+// Copyright (c) 2026 VEXXHOST, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+package com.vexxhost.keycloak.sts.sessiontag;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,7 +51,7 @@ public class StsSessionTagMapper extends AbstractOIDCProtocolMapper
         CONFIG_PROPERTIES.add(new ProviderConfigProperty(
                 PRINCIPAL_TAG_ATTRIBUTE_PREFIX_CONFIG,
                 "Principal tag attribute prefix",
-                "User and group attributes with this prefix are converted to RGW STS principal tags. "
+                "Group (and optionally user) attributes with this prefix are converted to STS principal tags. "
                         + "For example, sts-session-tags.project-access becomes project-access.",
                 ProviderConfigProperty.STRING_TYPE,
                 DEFAULT_PRINCIPAL_TAG_ATTRIBUTE_PREFIX));
@@ -56,7 +59,8 @@ public class StsSessionTagMapper extends AbstractOIDCProtocolMapper
         CONFIG_PROPERTIES.add(new ProviderConfigProperty(
                 TRANSITIVE_TAG_KEYS_ENABLED_CONFIG,
                 "Enable transitive_tag_keys",
-                "Emit the transitive_tag_keys section inside the AWS session tags claim. Disabled by default.",
+                "Emit the transitive_tag_keys section inside the AWS session tags claim. AWS uses it for role "
+                        + "chaining; Ceph RADOS Gateway does not implement it and treats it as an ordinary tag.",
                 ProviderConfigProperty.BOOLEAN_TYPE,
                 Boolean.FALSE));
 
@@ -70,11 +74,12 @@ public class StsSessionTagMapper extends AbstractOIDCProtocolMapper
         CONFIG_PROPERTIES.add(new ProviderConfigProperty(
                 CLAIM_FORMAT_CONFIG,
                 "Claim format",
-                "RADOS Gateway documents the tags namespace as a one-element array. AWS documents the same namespace as a nested object.",
+                "aws-nested emits the object form documented by AWS, which Ceph RADOS Gateway also accepts. "
+                        + "radosgw-array wraps the same object in a one-element array, as shown in the RADOS Gateway documentation.",
                 ProviderConfigProperty.LIST_TYPE,
-                CLAIM_FORMAT_RADOSGW_ARRAY,
-                CLAIM_FORMAT_RADOSGW_ARRAY,
-                CLAIM_FORMAT_AWS_NESTED));
+                CLAIM_FORMAT_AWS_NESTED,
+                CLAIM_FORMAT_AWS_NESTED,
+                CLAIM_FORMAT_RADOSGW_ARRAY));
 
         CONFIG_PROPERTIES.add(new ProviderConfigProperty(
                 INCLUDE_USER_ATTRIBUTES_CONFIG,
@@ -102,7 +107,7 @@ public class StsSessionTagMapper extends AbstractOIDCProtocolMapper
                 "Add to ID token",
                 "Add the AWS session tags claim to the ID token. Enable this when the token passed to STS is an ID token.",
                 ProviderConfigProperty.BOOLEAN_TYPE,
-                Boolean.TRUE));
+                Boolean.FALSE));
     }
 
     @Override
@@ -186,12 +191,12 @@ public class StsSessionTagMapper extends AbstractOIDCProtocolMapper
     }
 
     private static SessionTagClaimBuilder.ClaimFormat getClaimFormat(ProtocolMapperModel mappingModel) {
-        String configuredValue = getStringConfig(mappingModel, CLAIM_FORMAT_CONFIG, CLAIM_FORMAT_RADOSGW_ARRAY);
-        if (CLAIM_FORMAT_AWS_NESTED.equals(configuredValue)) {
-            return SessionTagClaimBuilder.ClaimFormat.AWS_NESTED;
+        String configuredValue = getStringConfig(mappingModel, CLAIM_FORMAT_CONFIG, CLAIM_FORMAT_AWS_NESTED);
+        if (CLAIM_FORMAT_RADOSGW_ARRAY.equals(configuredValue)) {
+            return SessionTagClaimBuilder.ClaimFormat.RADOSGW_ARRAY;
         }
 
-        return SessionTagClaimBuilder.ClaimFormat.RADOSGW_ARRAY;
+        return SessionTagClaimBuilder.ClaimFormat.AWS_NESTED;
     }
 
     private static boolean getBooleanConfig(ProtocolMapperModel mappingModel, String key, boolean defaultValue) {

@@ -1,4 +1,7 @@
-package com.vexxhost.keycloak.mapper;
+// Copyright (c) 2026 VEXXHOST, Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+package com.vexxhost.keycloak.sts.sessiontag;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

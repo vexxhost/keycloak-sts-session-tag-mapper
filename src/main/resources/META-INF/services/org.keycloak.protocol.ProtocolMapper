@@ -1,1 +1,1 @@
-com.vexxhost.keycloak.mapper.StsSessionTagMapper
+com.vexxhost.keycloak.sts.sessiontag.StsSessionTagMapper

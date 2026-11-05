@@ -1,4 +1,5 @@
 target/
+dist/
 
 # Local editor and IDE metadata
 .idea/
