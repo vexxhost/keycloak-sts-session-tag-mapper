@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.m2 \
 FROM scratch AS jar
 COPY --from=build /dist/keycloak-sts-session-tag-mapper.jar /
 
-FROM busybox:1.37.0@sha256:a7dbc319b1438115a207e11930dc4bb3e643dcb3ec0bdd694bb36cd8fad289ec
+FROM busybox:1.38.0@sha256:a46257e06c82ad85242d0d38077d0a52d9896389ca60a1a59d3463db586e5fa4
 COPY LICENSE /licenses/LICENSE
 COPY --from=build /dist/keycloak-sts-session-tag-mapper.jar /opt/keycloak/providers/keycloak-sts-session-tag-mapper.jar
 RUN mkdir /providers && chown 65534:65534 /providers
