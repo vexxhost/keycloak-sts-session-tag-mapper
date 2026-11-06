@@ -102,6 +102,10 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.6.1</version>
+        <configuration>
+          <!-- JBoss LogManager must be selected before any Keycloak classes initialize logging. -->
+          <argLine>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argLine>
+        </configuration>
       </plugin>
       <plugin>
         <!-- Integration tests (*IT.java) load the packaged jar into a real Keycloak container. -->
@@ -109,6 +113,8 @@
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>3.6.1</version>
         <configuration>
+          <!-- Keep the integration-test JVM consistent with the unit-test JVM. -->
+          <argLine>-Djava.util.logging.manager=org.jboss.logmanager.LogManager</argLine>
           <systemPropertyVariables>
             <keycloak.version>${keycloak.version}</keycloak.version>
             <mapper.jar>${project.build.directory}/${project.build.finalName}.jar</mapper.jar>
